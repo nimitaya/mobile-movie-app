@@ -1,5 +1,8 @@
 # React Native
 
+https://colorhunt.co/palette/5f0f40fb8b24e364149a031e
+https://colorhunt.co/palette/22092c872341be3144f05941
+
 ## Infos über Dateien
 
 ### Root Folder
@@ -18,6 +21,9 @@
     - `slug` = unique Identifier für Expo
     - Orientation (Portrait or Landscape)
     - App-Icon
+        - bei Android ist es `"foregroundImage"`
+        - bei Web `"favicon"`
+        - und auch unter expo-splash-screen
     - `scheme` ist für Links/ Routing
     - `userInterfaceStyle` Dark oder Lightmode 
     - `newArchEnabled` sollte true, für neue tolle React Native Sachen
@@ -64,7 +70,7 @@
 - layout in app beeinflusst die Gruppen-Router
 - mit der `<Tabs></Tabs>` Komponente können wir unten automatisch kleine Navigation erstellen
     - kann man bearbeiten und anpassen
-    
+
 
 ---
 
