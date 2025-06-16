@@ -111,6 +111,7 @@ https://colorhunt.co/palette/22092c872341be3144f05941
     - `columnWrapperStyle` = Style für die Spalten 
         - `columnWrapperStyle={{ justifyContent: "flex-start", gap: 20, paddingRight: 5, marginBottom:10 }}`
     - `scrollEnabled` = ob Scroll aktiv oder nicht - brauchen wir nicht, wenn eh schon innerhalb <ScrollView></ScrollView>
+    - `listHeaderComponent={<><component/></>}` = wird immer oberhalb der Liste angezeigt
 - <Link></Link>
     - href = der Pfad wohin
     - asChild bedeutet, dass die Kind-Komponente da drin nur cklickable ist
@@ -161,6 +162,54 @@ const MovieCard = ({id, poster_path, title, vote_average, release_date}: Movie) 
   )
 }
 export default MovieCard
+```
+
+##### Kontrollierter Input
+- in Parent Compnent die Query als state nutzen
+    - in Komponente dann als value geben und eine onChange Function formulieren mit setStateFunction und Inhalt
+- innerhalb Komponenten Datei Props aufrufen
+    - bei TS auch Typen immer definieren
+    - ebenfalls als value und onChangeFunction setzen
+
+```jsx
+// in search.tsx
+const Search = () => {
+    const [searchQuery, setSearchQuery] = useState("");
+    return (
+        ...
+        <SearchBar placeholder="Search movies..." value={searchQuery} onChangeText={(text: string)=> setSearchQuery(text)} />
+        ...
+    )}
+
+// in SearchBar.tsx Component (hier kurz ohne Imports)
+interface Props {
+  placeholder: string;
+  onPress?: () => void;
+  value: string;
+  onChangeText: (text: string) => void;
+}
+
+const SearchBar = ({ placeholder, onPress, value, onChangeText }: Props) => {
+  return (
+    <View className="flex-row items-center bg-dark-200 rounded-full px-5 py-4">
+      <Image
+        source={icons.search}
+        className="size-5"
+        resizeMode="contain"
+        tintColor="#ab8bff"
+      />
+      <TextInput
+        onPress={onPress}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        placeholderTextColor="#ab8bff"
+        className="flex-1 ml-2 text-white"
+      />
+    </View>
+  );
+};
+export default SearchBar;
 ```
 
 ### API Connection
