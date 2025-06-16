@@ -89,9 +89,33 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 
 ### Components
 #### Nützliche Components
-- <ScrollView></ScrollView>
+- <View></View>
+    - wie <div></div>
+- <Text></Text>
+    - alles Text-Elemente, hat Props
+    - `numberOfLines` = kann auf bestimmte Zeilenanzahl verkürzen automatisch
+    - `numberOfLines={1}`
+- <Image/>
+    - mit nützlichen Props
+- `<ScrollView></ScrollView>`
     - Prop geben, um Scrollbar an der Seite zu verstecken
     - `showsVerticalScrollIndicator={false}`
+- `<ActivityIndicator/>`
+- `<FlatList />` von React Native
+    - `data` = welche Daten will ich haben
+    - `renderItem` = wie soll es die Daten anzeigen
+        - wie .map Method
+    - `keyExtractor` = damit React Native weiß, wie viele Elements da sind und wo sie positioniert sind
+        - .map method für jedes Item und nehmen id als String
+    - `numColumns` = Nummer der Spalten
+    - `columnWrapperStyle` = Style für die Spalten 
+        - `columnWrapperStyle={{ justifyContent: "flex-start", gap: 20, paddingRight: 5, marginBottom:10 }}`
+    - `scrollEnabled` = ob Scroll aktiv oder nicht - brauchen wir nicht, wenn eh schon innerhalb <ScrollView></ScrollView>
+- <Link></Link>
+    - href = der Pfad wohin
+    - asChild bedeutet, dass die Kind-Komponente da drin nur cklickable ist
+- <TouchableOpacity><>
+
 
 #### Eigene Components
 - wie in React auch einen separaten Components Folder im Root erstellen
@@ -106,6 +130,37 @@ interface Props {
     placeholder: string;
     onPress?: () => void;
 }
+```
+
+##### Props in Components
+- wenn mit .map methode in `renderItem={({ item }) => ( )}` etwas dynamisch machen möchten
+- spreaden alle Daten des Items aus
+    - `{...item}` und geben das Component als Props
+    - innerhalb der Component suchen wir uns dann das raus, was wir brauchen
+
+```jsx
+// in index.tsx
+<FlatList
+    data={movies}
+    renderItem={({ item }) => (
+      <MovieCard
+      {...item}
+    /> )}
+/>
+
+// in MovieCard.tsx Component
+const MovieCard = ({id, poster_path, title, vote_average, release_date}: Movie) => {
+  return (
+    <Link href={`/movies/${id}`} asChild>
+        <TouchableOpacity className='w-[30%]'>
+            <Image 
+            source={{uri: poster_path ? `https://image.tmdb.org/t/p/w500${poster_path}` : "https://placehold.co/600x400/1a1a1a/ffffff.png"}} className='w-full h-52 rounded-lg' resizeMode='cover' />
+            <Text className="text-sm font-bold text-white mt-2">{title}</Text>
+        </TouchableOpacity>
+    </Link>
+  )
+}
+export default MovieCard
 ```
 
 ### API Connection
@@ -185,6 +240,78 @@ export const fetchMovies = async ({ query }: { query: string }) => {
 };
 ``` 
 
+### Custom Hooks
+- können custom Hooks erstellen, um uns nicht zu oft zu wiederholen
+- mit einem useFetch, können wir fetchMovies, fetchMovieDetails etc. aufrufen
+- erstellen eine Hook-Funktion, der wir eine andere Funktion als Argument geben
+    - useFetch(fetchMovies), useFetch(fetchMovieDetails)
+    - Argument-Function ist generic Type `<T>`, generci Function, damit wir später die spezifischen Typen weitergeben können
+    - `const useFetch = <T>(fetchFunction: ()=> Promise<T>, autoFetch = true) => {}`
+- können gewohnt mit `useState` von React arbeiten
+- nutzen useEffect um Funktion zum Start zu rufen
+- alle Hooks müssen etwas returnen, daher geben wir einige Sachen wieder
+    - `return { data, loading, error, refetch: fetchData, reset };`
+
+```ts
+import { useEffect, useState } from "react";
+
+const useFetch = <T>(fetchFunction: () => Promise<T>, autoFetch = true) => {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await fetchFunction();
+      setData(result);
+    } catch (error) {
+      // @ts-ignore
+      setError(error instanceof Error ? error : new Error("An error occurred"));
+    } finally {
+      // wird ausgeführt, wenn entweder try succeeds or cath finishes
+      setLoading(false);
+    }
+  };
+
+  const reset = () => {
+    setData(null);
+    setLoading(false);
+    setError(null);
+  };
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchData();
+    }
+  }, []);
+
+  // alle Hooks müssen was returnen
+  return { data, loading, error, refetch: fetchData, reset };
+};
+
+export default useFetch;
+```
+
+- können diesen Hook dann innerhalb index.tsx nutzen
+- kombinieren dafür den Hook und unsere fetchMovies Funktionen
+    - destructure die data, loading und error States
+    - nutzen unten in Komponente dann, um zu zeigen
+    - noch oberhalb Return Statement
+
+```ts
+const {
+    data: movies,
+    loading: moviesLoading,
+    error: moviesError,
+  } = useFetch(() => fetchMovies({ query: "" }));
+  // destructure states of data, loading, error and rename into movies, moviesLoading, moviesError
+  // nutzen useFetch Hook und dann die fetchMovies Function with empty query
+```
+
+
 ---
 
 ## Frameworks/ Packages
@@ -208,6 +335,9 @@ export const fetchMovies = async ({ query }: { query: string }) => {
 - --> die vier brauchen wir zusammen für Styling
 
 ### more to Tailwind Configuration
+- wenn wir Tailwind auch in anderen Orten, als nur dem app Ordner anwenden wollen, müssen wir in der config was ändern!
+    - fügen auch component Ordner hinzu
+    - `content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],`
 - innerhalb `tailwind.config.js` in theme, in extend
 ```js
 theme: {
