@@ -36,6 +36,15 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 - hier kommen verschiedene Screens hin
 - index.tsx ist Grundlage
 
+### components Folder
+- wie in React auch einen separaten Components Folder im Root erstellen
+- die Logik für Funktionen sollte im Parent Component sein, nicht in der reusable Componente selbst, wie Search-Bar
+
+### services Folder
+- für API Nutzung und so
+- hier im Beispiel für die Movie Database
+
+---
 
 ## React Native
 - Pages werden Screens genannt
@@ -71,6 +80,110 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 - mit der `<Tabs></Tabs>` Komponente können wir unten automatisch kleine Navigation erstellen
     - kann man bearbeiten und anpassen
 
+#### Eigene Routen / ==HOOKS==
+- mit Router von Expo
+    - `import { useRouter } from "expo-router";`
+- innerhalb Return Statement
+    - `const router = useRouter();`
+
+
+### Components
+#### Nützliche Components
+- <ScrollView></ScrollView>
+    - Prop geben, um Scrollbar an der Seite zu verstecken
+    - `showsVerticalScrollIndicator={false}`
+
+#### Eigene Components
+- wie in React auch einen separaten Components Folder im Root erstellen
+- die Logik für Funktionen sollte im Parent Component sein, nicht in der reusable Componente selbst, wie Search-Bar
+- wir holen Props von Eltern Komponente
+    - müssen das für TS aber noch konkret mit einem Interface definieren
+    - oberhalb des Returns
+    - die Funktion ist optional und gibt nichts zurück
+    
+```ts
+interface Props {
+    placeholder: string;
+    onPress?: () => void;
+}
+```
+
+### API Connection
+- neuer Ordner `services`
+- Datei api.ts
+- machen eine reusable API Configuration
+    - mit einer Base URL
+    - em API Key
+    - und `headers` mit
+        - `accept` welche Daten akzeptiert werden
+        - `Authorization` wie autorisieren, mit API Key
+- fetchMovies mit asynchroner Funktion und Typ der Query nicht vergessen
+
+**Allgemeine fetchPopularMovies:**
+```ts
+export const TMDB_CONFIG = {
+  BASE_URL: "https://api.themoviedb.org/3",
+  API_KEY: process.env.EXPO_PUBLIC_MOVIE_API_KEY,
+  headers: {
+    accept: "application/json",
+    // which data shall be accepted
+    Authorization: `Bearer ${process.env.EXPO_PUBLIC_MOVIE_API_KEY}`,
+  },
+};
+
+export const fetchPopularMovies = async ({ query }: { query: string }) => {
+  const endpoint = "/discover/movie?sort_by=popularity.desc";
+  // Sortierungsfunktion/ query von TMDB
+
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: TMDB_CONFIG.headers,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch movies", response.statusText);
+    // additional information in the Status Text
+  }
+
+  const data = await response.json();
+
+  return data.results;
+};
+```
+
+**Reusable mit Query**
+```ts
+export const TMDB_CONFIG = {
+  BASE_URL: "https://api.themoviedb.org/3",
+  API_KEY: process.env.EXPO_PUBLIC_MOVIE_API_KEY,
+  headers: {
+    accept: "application/json",
+    // which data shall be accepted
+    Authorization: `Bearer ${process.env.EXPO_PUBLIC_MOVIE_API_KEY}`,
+  },
+};
+
+export const fetchMovies = async ({ query }: { query: string }) => {
+  const endpoint = query
+    ? `${TMDB_CONFIG.BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+    : `${TMDB_CONFIG.BASE_URL}/discover/movie?sort_by=popularity.desc`;
+  // wenn query, such danach (mit encoded Version, falls komische Zeichen), sonst Sortierungsfunktion/ query von TMDB
+
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: TMDB_CONFIG.headers,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch movies", response.statusText);
+    // additional information in the Status Text
+  }
+
+  const data = await response.json();
+
+  return data.results;
+};
+``` 
 
 ---
 
