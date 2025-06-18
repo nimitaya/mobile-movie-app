@@ -18,18 +18,21 @@ const Search = () => {
     reset,
   } = useFetch(() => fetchMovies({ query: searchQuery }), false);
   // wir machen false, damit der useFetch Hook nicht direkt beim Rendern der Komponente ausgeführt wird
+  // setzen den Hook einmal auf, damit wir die Daten haben und die Funktionen nutzen können
 
   useEffect(() => {
-    const func = async () => {
-    if (searchQuery.trim()) {
-      // Wenn die searchQuery nicht leer ist, lade Filme
+    // nutzen Timeout, damit wir nicht bei jedem Tastendruck eine Anfrage an die API senden
+    const timeoutId = setTimeout(async () => {
+      if (searchQuery.trim()) {
+        // Wenn die searchQuery nicht leer ist, lade Filme
         await loadMovies();
-       } else {
+        // nutzen nur die Funktion, weil wir innerhalb Hooks nicht andere Hooks aufrufen können/ dürfen
+      } else {
         reset(); // Wenn die searchQuery leer ist, setze die Daten zurück
-      } 
-    }
+      }
+    }, 500);
 
-    func();
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
   return (
@@ -59,7 +62,11 @@ const Search = () => {
               <Image source={icons.logo} className="w-12 h-10" />
             </View>
             <View className="my-5">
-              <SearchBar placeholder="Search movies..." value={searchQuery} onChangeText={(text: string)=> setSearchQuery(text)} />
+              <SearchBar
+                placeholder="Search movies..."
+                value={searchQuery}
+                onChangeText={(text: string) => setSearchQuery(text)}
+              />
             </View>
 
             {/* wenn Loading, zeig das */}
@@ -89,6 +96,15 @@ const Search = () => {
                 </Text>
               )}
           </>
+        }
+        ListEmptyComponent={
+          !moviesLoading && !moviesError ? (
+            <View className="mt-10 px-5">
+              <Text className="text-center text-gray-500">
+                {searchQuery.trim() ? "No movies found" : "Search for a movie"}
+              </Text>
+            </View>
+          ) : null
         }
       />
     </View>

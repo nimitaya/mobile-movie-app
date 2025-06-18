@@ -51,6 +51,11 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 - für jede Routen-Ordner können wir neue _layout.tsx für spezifisches Design machen
 - es darf nur **eine** `index.tsx` geben
     - können die aber auch in einen Ordner schieben, wenn wir wollen
+- Allgemein zu Hooks in React:
+  - useFetch: Sets up the hook and returns state/functions.
+    - wird oben in der Komponente einmal gecallt
+  - loadMovies (refetch): Triggers the fetch logic when you want (e.g., after debounce).
+  - You must not call hooks like useFetch inside effects or functions—only at the top level of your component.
 
 ### Routing
 
@@ -112,6 +117,7 @@ https://colorhunt.co/palette/22092c872341be3144f05941
         - `columnWrapperStyle={{ justifyContent: "flex-start", gap: 20, paddingRight: 5, marginBottom:10 }}`
     - `scrollEnabled` = ob Scroll aktiv oder nicht - brauchen wir nicht, wenn eh schon innerhalb <ScrollView></ScrollView>
     - `listHeaderComponent={<><component/></>}` = wird immer oberhalb der Liste angezeigt
+    - `ListEmptyComponent` = was angezeigt wird, wenn die Liste leer ist
 - <Link></Link>
     - href = der Pfad wohin
     - asChild bedeutet, dass die Kind-Komponente da drin nur cklickable ist
@@ -300,6 +306,8 @@ export const fetchMovies = async ({ query }: { query: string }) => {
 - nutzen useEffect um Funktion zum Start zu rufen
 - alle Hooks müssen etwas returnen, daher geben wir einige Sachen wieder
     - `return { data, loading, error, refetch: fetchData, reset };`
+- ==Custom Hooks dürfen **nicht innerhalb anderer Hooks** (useEffect) gecallt werden==
+  - darum nutzen wir die **`refetch` Function**
 
 ```ts
 import { useEffect, useState } from "react";
@@ -344,7 +352,7 @@ const useFetch = <T>(fetchFunction: () => Promise<T>, autoFetch = true) => {
 export default useFetch;
 ```
 
-- können diesen Hook dann innerhalb index.tsx nutzen
+- können diesen Hook dann innerhalb index.tsx und search.tsx nutzen
 - kombinieren dafür den Hook und unsere fetchMovies Funktionen
     - destructure die data, loading und error States
     - nutzen unten in Komponente dann, um zu zeigen
@@ -360,6 +368,79 @@ const {
   // nutzen useFetch Hook und dann die fetchMovies Function with empty query
 ```
 
+#### Search Function
+- innerhalb neuer search.tsx Page machen wir eine Suchfunktion mit dem custom Hook
+- nutzen dafür dann unsere fetchMovies Funktion
+- hier arbeiten wir aber mit Query
+- zum Fetchen der Movies arbeiten wir mit der `refetch` Function, die in `loadMovies` umbenannt wurde
+  - `refetch` ruft die `fetchData` Function in unserem custom Hooke `useFetch` auf
+  - dürfen keine Hooks in anderen Hooks nutzen, daher die `refetch` Function
+- 
+
+**Logik:**
+```
+[Component Render]
+      |
+      v
+[useFetch Hook Called Once]
+      |
+      v
+receive: { movies, moviesLoading, moviesError, loadMovies, reset }
+      |
+      v
+[User types in SearchBar]
+      |
+      v
+[searchQuery changes]
+      |
+      v
+[useEffect runs]
+      |
+      v
+[After 500ms]
+      |
+      v
+[loadMovies() called]
+      |
+      v
+[useFetch fetches movies with current searchQuery]
+```
+
+**Code search.tsx**:
+```jsx
+import { fetchMovies } from "@/services/api";
+import useFetch from "@/services/useFetch";
+import { useEffect, useState } from "react";
+
+const Search = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const {
+    data: movies,
+    loading: moviesLoading,
+    error: moviesError,
+    refetch: loadMovies,
+    reset,
+  } = useFetch(() => fetchMovies({ query: searchQuery }), false);
+  // wir machen false, damit der useFetch Hook nicht direkt beim Rendern der Komponente ausgeführt wird
+  // setzen den Hook einmal auf, damit wir die Daten haben und die Funktionen nutzen können
+
+  useEffect(() => {
+    // nutzen Timeout, damit wir nicht bei jedem Tastendruck eine Anfrage an die API senden
+    const timeoutId = setTimeout(async () => {
+      if (searchQuery.trim()) {
+        // Wenn die searchQuery nicht leer ist, lade Filme
+        await loadMovies();
+        // nutzen nur die Funktion, weil wir innerhalb Hooks nicht andere Hooks aufrufen können/ dürfen
+      } else {
+        reset(); // Wenn die searchQuery leer ist, setze die Daten zurück
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+  ... }
+```
 
 ---
 
