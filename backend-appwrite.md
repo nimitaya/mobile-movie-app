@@ -73,7 +73,6 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
     const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
       Query.equal("searchTerm", query),
     ]);
-    // console.log(result)
 
     // check if a record of that search has already been stored
     // if already searched for, we get > 0, so update the count
@@ -105,4 +104,13 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
 };
 ```
 
-#### 
+#### Fetch Trending Movies
+- die meistgesuchten Movies der User anzeigen
+- Funktion gibt ein Promise mit den TrendingMovies als Array wieder oder undefined
+    - TrendingMovie ist Interface, mit Array dahinter weiß TS, dass mehrere im Array kommen
+- öffnen try-catch Block
+- holen uns erstmal das Ergebnos aus der Datenbank und listen auf
+    - `const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [ Query.limit(5), Query.orderDesc("count")]);`
+        - wie oben
+        - Query.limit(5) limitiert auf 5
+        - Query.orderDesc("count") zeigt Ergebnisse in Absteigender Reihenfolge basierend auf dem count Field

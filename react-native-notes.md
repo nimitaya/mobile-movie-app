@@ -94,19 +94,24 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 
 ### Components
 #### Nützliche Components
-- <View></View>
-    - wie <div></div>
-- <Text></Text>
+- `<View></View>`
+    - wie `<div></div>`
+- `<Text></Text>`
     - alles Text-Elemente, hat Props
     - `numberOfLines` = kann auf bestimmte Zeilenanzahl verkürzen automatisch
     - `numberOfLines={1}`
-- <Image/>
+- `<Image/>`
     - mit nützlichen Props
+    - `source` für den Pfad
+    - `resizeMode` mit `="cover"` für ausfüllen
 - `<ScrollView></ScrollView>`
     - Prop geben, um Scrollbar an der Seite zu verstecken
     - `showsVerticalScrollIndicator={false}`
 - `<ActivityIndicator/>`
 - `<FlatList />` von React Native
+    - `horizontal` setzt Ausrichtung der Liste
+    - `showsHorizontalScrollIndicator` = true/false für anzeigen oder nicht
+    - `ItemSeparatorComponent={() => <View className="w-4"/>}`Komponente für Abstand
     - `data` = welche Daten will ich haben
     - `renderItem` = wie soll es die Daten anzeigen
         - wie .map Method
@@ -118,10 +123,10 @@ https://colorhunt.co/palette/22092c872341be3144f05941
     - `scrollEnabled` = ob Scroll aktiv oder nicht - brauchen wir nicht, wenn eh schon innerhalb <ScrollView></ScrollView>
     - `listHeaderComponent={<><component/></>}` = wird immer oberhalb der Liste angezeigt
     - `ListEmptyComponent` = was angezeigt wird, wenn die Liste leer ist
-- <Link></Link>
+- `<Link></Link>`
     - href = der Pfad wohin
     - asChild bedeutet, dass die Kind-Komponente da drin nur cklickable ist
-- <TouchableOpacity><>
+- `<TouchableOpacity></TouchableOpacity>` = anklickbares Element
 
 
 #### Eigene Components
@@ -440,6 +445,18 @@ const Search = () => {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
   ... }
+```
+
+#### Trending Movies
+- Funktionalität über Database und Backend von Appwrite
+- nutzen die updateSearchCount Funktion in einem zweiten, separeten useEffect()
+
+```jsx
+useEffect(() => {
+    if (movies?.length > 0 && movies?.[0]) {
+          updateSearchCount(searchQuery, movies[0]);
+        }
+  },[movies])
 ```
 
 ---

@@ -29,10 +29,6 @@ const Search = () => {
         await loadMovies();
         // nutzen nur die Funktion, weil wir innerhalb Hooks nicht andere Hooks aufrufen können/ dürfen
 
-        if (movies?.length > 0 && movies?.[0]) {
-          await updateSearchCount(searchQuery, movies[0]);
-        }
-
       } else {
         reset(); // Wenn die searchQuery leer ist, setze die Daten zurück
       }
@@ -40,6 +36,12 @@ const Search = () => {
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
+
+  useEffect(() => {
+    if (movies?.length > 0 && movies?.[0]) {
+          updateSearchCount(searchQuery, movies[0]);
+        }
+  },[movies])
 
   return (
     <View className="flex-1 bg-primary">

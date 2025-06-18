@@ -19,7 +19,6 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
     const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
       Query.equal("searchTerm", query),
     ]);
-    // console.log(result)
 
     // check if a record of that search has already been stored
     // if already searched for, we get > 0, so update the count
@@ -49,3 +48,21 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
     throw error;
   }
 };
+
+// Fetch most searched Movies
+export const getTrendingMovies = async (): Promise<TrendingMovie[] | undefined> => {
+    try {
+        const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
+      Query.limit(5), 
+    // nur 5 Ergebnisse
+      Query.orderDesc("count"),
+    // Absteigende Reihenfolge basierend auf count Field
+    ]);
+
+    return result.documents as unknown as TrendingMovie[]
+    // Explanation for TS mit Interface
+    } catch (error) {
+        console.log(error)
+        return undefined
+    }
+}
