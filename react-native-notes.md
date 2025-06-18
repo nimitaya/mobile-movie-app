@@ -34,7 +34,10 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 
 ### app folder
 - hier kommen verschiedene Screens hin
-- index.tsx ist Grundlage
+- `index.tsx` ist Grundlage
+- `_layout.tsx` für globales Styling etc.
+  - für Tabs und Routen Zuordnung mit Stacks
+  - kann hier auch die Statusbar ansprechen (also Uhrzeit, Akku etc)
 
 ### components Folder
 - wie in React auch einen separaten Components Folder im Root erstellen
@@ -48,7 +51,7 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 
 ## React Native
 - Pages werden Screens genannt
-- für jede Routen-Ordner können wir neue _layout.tsx für spezifisches Design machen
+- für jede Routen-Ordner können wir neue `_layout.tsx` für spezifisches Design machen
 - es darf nur **eine** `index.tsx` geben
     - können die aber auch in einen Ordner schieben, wenn wir wollen
 - Allgemein zu Hooks in React:
@@ -61,7 +64,7 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 
 #### Einfache Routen
 - alle Dateien in dem app Ordner
-- index.tsx ist der Home Screen
+- `index.tsx` ist der Home Screen
 - neue Datei erstellen mit Shortcut `rnfe` oder `rnfes`
     - React Native Functional Export component with Styles
 - innerhalb Index oder wo wir brauchen Link Komponente erstellen
@@ -84,6 +87,29 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 - layout in app beeinflusst die Gruppen-Router
 - mit der `<Tabs></Tabs>` Komponente können wir unten automatisch kleine Navigation erstellen
     - kann man bearbeiten und anpassen
+- in der übergeordneten `_layout.tsx`(in App Ordner) müssen wir mit `<Stack></Stack>` und `<Stack.Screen /> `die Routen zuordnen
+  - wie bei react-router-dom
+- außerhalb der Stacks kann man noch andere globale Sachen machen
+  - `<StatusBar hidden={true} />` muss im obersten Root _layout.tsx stehen außerhalb der Routing-Stacks
+```jsx
+import { Stack } from "expo-router";
+import { StatusBar } from "react-native";
+import "./global.css";
+
+export default function RootLayout() {
+  return (
+    <>
+      <StatusBar hidden={true} />
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)/profile" options={{ title: "Profile" }} />
+        <Stack.Screen name="(tabs)/saved" options={{ title: "Saved" }} />
+        <Stack.Screen name="movies/[id]" options={{ headerShown: false }} />
+      </Stack>
+    </>
+  );
+}
+```
 
 #### Eigene Routen / ==HOOKS==
 - mit Router von Expo
@@ -127,6 +153,9 @@ https://colorhunt.co/palette/22092c872341be3144f05941
     - href = der Pfad wohin
     - asChild bedeutet, dass die Kind-Komponente da drin nur cklickable ist
 - `<TouchableOpacity></TouchableOpacity>` = anklickbares Element
+-  `<StatusBar /> `für den Bereich mit Uhrzeit, Akku etc.
+  - `<StatusBar hidden={true} />` kann man verstecken
+  - muss im obersten Root _layout.tsx stehen außerhalb der Routing-Stacks
 
 
 #### Eigene Components
@@ -480,6 +509,7 @@ useEffect(() => {
 - React Native Reanimated
 - React Native Safe Area Context
 - --> die vier brauchen wir zusammen für Styling
+- für masked Text `npm install --save @react-native-masked-view/masked-view`
 
 ### more to Tailwind Configuration
 - wenn wir Tailwind auch in anderen Orten, als nur dem app Ordner anwenden wollen, müssen wir in der config was ändern!
