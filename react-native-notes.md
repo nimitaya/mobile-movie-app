@@ -131,10 +131,12 @@ export default function RootLayout() {
     - `source` für den Pfad
     - `resizeMode` mit `="cover"` für ausfüllen
 - `<ScrollView></ScrollView>`
-    - Prop geben, um Scrollbar an der Seite zu verstecken
+    - Props geben, um Scrollbar an der Seite zu verstecken
     - `showsVerticalScrollIndicator={false}`
+    - rendert alle Children auf einmal, was aber Performance issues machen kann, wenn zu viele Items
 - `<ActivityIndicator/>`
 - `<FlatList />` von React Native
+    - rendert in lazy Mode, also erst kurz bevor sie auftauchen würden, **besser für Performance**
     - `horizontal` setzt Ausrichtung der Liste
     - `showsHorizontalScrollIndicator` = true/false für anzeigen oder nicht
     - `ItemSeparatorComponent={() => <View className="w-4"/>}`Komponente für Abstand
@@ -146,7 +148,7 @@ export default function RootLayout() {
     - `numColumns` = Nummer der Spalten
     - `columnWrapperStyle` = Style für die Spalten 
         - `columnWrapperStyle={{ justifyContent: "flex-start", gap: 20, paddingRight: 5, marginBottom:10 }}`
-    - `scrollEnabled` = ob Scroll aktiv oder nicht - brauchen wir nicht, wenn eh schon innerhalb <ScrollView></ScrollView>
+    - `scrollEnabled` = ob Scroll aktiv oder nicht - brauchen wir nicht, wenn eh schon innerhalb `<ScrollView></ScrollView>`, **aber nur, wenn keine große Liste ist!** Wenn große Liste, dann sollte Flatlist Scrollen, nicht Scrollview, wegen Performance
     - `listHeaderComponent={<><component/></>}` = wird immer oberhalb der Liste angezeigt
     - `ListEmptyComponent` = was angezeigt wird, wenn die Liste leer ist
 - `<Link></Link>`
