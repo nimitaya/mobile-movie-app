@@ -15,7 +15,7 @@ https://colorhunt.co/palette/22092c872341be3144f05941
 - wird auch app config genannt
 - Einstellungen für die gesamte App
 - ändern das Verhalten des Projekts
-- expo Objekt ist root
+- **expo Objekt** ist root
 - man kann hier ändern
     - Name der App
     - `slug` = unique Identifier für Expo
@@ -153,6 +153,7 @@ export default function RootLayout() {
     - href = der Pfad wohin
     - asChild bedeutet, dass die Kind-Komponente da drin nur cklickable ist
 - `<TouchableOpacity></TouchableOpacity>` = anklickbares Element
+  - verringert beom Anklicken die Deckkraft des Elements (dimmt es ab/ macht durchsichtig)
 -  `<StatusBar /> `für den Bereich mit Uhrzeit, Akku etc.
   - `<StatusBar hidden={true} />` kann man verstecken
   - muss im obersten Root _layout.tsx stehen außerhalb der Routing-Stacks
